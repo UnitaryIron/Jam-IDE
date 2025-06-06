@@ -150,9 +150,20 @@
         try {
           const res = await fetch("https://jam-hi9d.onrender.com/run", {
   method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ code }),
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ code })
 });
+
+if (!res.ok) {
+  const err = await res.text();
+  throw new Error(`Server error ${res.status}: ${err}`);
+}
+
+const data = await res.json();
+displayOutput(data.output);
+
 
           const data = await res.json();
           document.getElementById("output").innerText = data.output || "";
