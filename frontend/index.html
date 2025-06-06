@@ -148,11 +148,12 @@
         document.getElementById("output").innerText = "";
         document.getElementById("error").innerText = "";
         try {
-          const res = await fetch("https://jam-hi9d.onrender.com", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code }),
-          });
+          const res = await fetch("https://jam-hi9d.onrender.com/run", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ code }),
+});
+
           const data = await res.json();
           document.getElementById("output").innerText = data.output || "";
           document.getElementById("error").innerText = data.error || "";
