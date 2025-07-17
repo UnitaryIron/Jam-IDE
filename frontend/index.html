@@ -2,193 +2,617 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Jam IDE v1.1</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jam IDE v1.2</title>
     <style>
+      :root {
+        --primary-color: #007acc;
+        --secondary-color: #1e1e1e;
+        --accent-color: #3c3c3c;
+        --text-color: #e0e0e0;
+        --error-color: #f48771;
+        --success-color: #73c991;
+        --border-color: #333;
+        --panel-bg: #252526;
+        --output-bg: #1e1e1e;
+      }
+      
       body {
-        font-family: "Courier New", monospace;
-        background: #111;
-        color: #eee;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: var(--secondary-color);
+        color: var(--text-color);
         margin: 0;
         padding: 0;
+        height: 100vh;
+        overflow: hidden;
       }
+      
       .container {
         display: flex;
         height: 100vh;
+        flex-direction: column;
       }
-      .left,
-      .right {
+      
+      .header {
+        background: var(--secondary-color);
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .logo {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+      }
+      
+      .logo-icon {
+        margin-right: 8px;
+        font-size: 20px;
+      }
+      
+      .version {
+        font-size: 12px;
+        opacity: 0.7;
+        margin-left: 8px;
+      }
+      
+      .main-content {
+        display: flex;
         flex: 1;
-        padding: 20px;
+        overflow: hidden;
       }
-      .left {
-        background: #181818;
-        border-right: 1px solid #333;
+      
+      .editor-panel, .output-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
       }
-      .right {
-        background: #1e1e1e;
+      
+      .editor-panel {
+        border-right: 1px solid var(--border-color);
       }
-      button {
-        margin-top: 10px;
-        margin-right: 10px;
-        font-size: 16px;
-        padding: 8px 15px;
-        border: none;
-        border-radius: 6px;
-        background-color: #444;
-        color: white;
-        cursor: pointer;
+      
+      .panel-header {
+        padding: 8px 16px;
+        background: var(--panel-bg);
+        border-bottom: 1px solid var(--border-color);
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        justify-content: space-between;
       }
-      #output,
-      #error {
-        background: #222;
-        padding: 10px;
-        margin-top: 10px;
-        white-space: pre-wrap;
-        border-radius: 6px;
+      
+      .editor-container {
+        flex: 1;
+        overflow: hidden;
       }
-      #error {
-        color: red;
+      
+      #monaco-editor {
+        width: 100%;
+        height: 100%;
       }
+      
       .controls {
-        margin-top: 15px;
+        padding: 12px 16px;
+        background: var(--panel-bg);
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      
+      button {
+        padding: 8px 16px;
+        border-radius: 4px;
+        border: none;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      
+      .primary-btn {
+        background: var(--primary-color);
+        color: white;
+      }
+      
+      .primary-btn:hover {
+        background: #0062a3;
+      }
+      
+      .secondary-btn {
+        background: var(--accent-color);
+        color: var(--text-color);
+      }
+      
+      .secondary-btn:hover {
+        background: #4a4a4a;
+      }
+      
+      .file-input {
+        display: none;
+      }
+      
+      .file-input-label {
+        padding: 8px 16px;
+        border-radius: 4px;
+        background: var(--accent-color);
+        color: var(--text-color);
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      
+      .file-input-label:hover {
+        background: #4a4a4a;
+      }
+      
+      .output-container {
+        flex: 1;
+        overflow: auto;
+        padding: 16px;
+        background: var(--output-bg);
+      }
+      
+      .output-section {
+        margin-bottom: 24px;
+      }
+      
+      .output-title {
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .output-title-icon {
+        font-size: 18px;
+      }
+      
+      .output-content {
+        background: var(--panel-bg);
+        border-radius: 4px;
+        padding: 12px;
+        font-family: 'Consolas', 'Courier New', monospace;
+        font-size: 14px;
+        white-space: pre-wrap;
+        overflow-x: auto;
+      }
+      
+      #output {
+        color: var(--text-color);
+      }
+      
+      #error {
+        color: var(--error-color);
+      }
+      
+      #jsOutput {
+        color: var(--success-color);
+      }
+      
+      .status-bar {
+        padding: 6px 16px;
+        background: var(--primary-color);
+        color: white;
+        font-size: 12px;
+        display: flex;
+        justify-content: space-between;
+      }
+      
+      .status-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      
+      .welcome-message {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      
+      .welcome-title {
+        font-size: 24px;
+        margin-bottom: 16px;
+        color: var(--primary-color);
+      }
+      
+      .welcome-features {
+        margin-top: 20px;
+      }
+      
+      .feature-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 12px;
+      }
+      
+      .feature-icon {
+        margin-right: 10px;
+        color: var(--primary-color);
+      }
+      
+      @media (max-width: 768px) {
+        .main-content {
+          flex-direction: column;
+        }
+        
+        .editor-panel {
+          border-right: none;
+          border-bottom: 1px solid var(--border-color);
+        }
       }
     </style>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/theme/dracula.min.css"
-    />
-    <link
-      rel="apple-touch-icon"
-      sizes="180x180"
-      href="/icon/apple-touch-icon.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="32x32"
-      href="/icon/favicon-32x32.png"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      sizes="16x16"
-      href="/icon/favicon-16x16.png"
-    />
-    <link rel="manifest" href="/icon/site.webmanifest" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/mode/javascript/javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/addon/hint/show-hint.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/addon/hint/javascript-hint.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/addon/hint/show-hint.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   </head>
   <body>
     <div class="container">
-      <div class="left">
-        <h2>Jam IDE v1.1</h2>
-        <textarea id="code"></textarea>
-        <div class="controls">
-          <button onclick="runCode()">Run</button>
-          <button id="compileBtn">Compile to JS</button>
-          <!-- where the JS will be shown -->
-
-          <button onclick="clearOutput()">Clear</button>
-          <button onclick="saveCode()">Save</button>
-          <input type="file" onchange="loadFile(event)" />
+      <div class="header">
+        <div class="logo">
+          <i class="fas fa-code logo-icon"></i>
+          <span>Jam IDE <span class="version">v2.0</span></span>
+        </div>
+        <div class="header-actions">
+          <button class="secondary-btn" onclick="showWelcome()">
+            <i class="fas fa-question-circle"></i> Help
+          </button>
         </div>
       </div>
-      <div class="right">
-        <h3>Output</h3>
-        <pre id="output"></pre>
-        <h3>Error</h3>
-        <pre id="error"></pre>
-        <h3>Compiled JavaScript Output</h3>
-        <pre id="jsOutput"></pre>
-        <style>
-          #jsOutput {
-            white-space: pre-wrap;
-            font-family: monospace;
-            background: #222;
-            color: #0f0;
-            border-radius: 5px;
-            padding: 1rem;
-            margin-top: 1rem;
-          }
-        </style>
+      
+      <div class="main-content">
+        <div class="editor-panel">
+          <div class="panel-header">
+            <span><i class="fas fa-edit"></i> Editor</span>
+          </div>
+          <div class="editor-container">
+            <div id="monaco-editor"></div>
+          </div>
+          <div class="controls">
+            <button class="primary-btn" onclick="runCode()">
+              <i class="fas fa-play"></i> Run
+            </button>
+            <button class="secondary-btn" id="compileBtn">
+              <i class="fas fa-cogs"></i> Compile to JS
+            </button>
+            <button class="secondary-btn" onclick="clearOutput()">
+              <i class="fas fa-broom"></i> Clear
+            </button>
+            <button class="secondary-btn" onclick="saveCode()">
+              <i class="fas fa-save"></i> Save
+            </button>
+            <input type="file" id="file-input" class="file-input" onchange="loadFile(event)">
+            <label for="file-input" class="file-input-label">
+              <i class="fas fa-folder-open"></i> Open
+            </label>
+          </div>
+        </div>
+        
+        <div class="output-panel">
+          <div class="panel-header">
+            <span><i class="fas fa-terminal"></i> Output</span>
+          </div>
+          <div class="output-container">
+            <div class="output-section">
+              <div class="output-title">
+                <i class="fas fa-print output-title-icon"></i>
+                <span>Program Output</span>
+              </div>
+              <pre id="output" class="output-content">Ready to run your Jam code...</pre>
+            </div>
+            
+            <div class="output-section">
+              <div class="output-title">
+                <i class="fas fa-exclamation-triangle output-title-icon"></i>
+                <span>Error Messages</span>
+              </div>
+              <pre id="error" class="output-content"></pre>
+            </div>
+            
+            <div class="output-section">
+              <div class="output-title">
+                <i class="fas fa-file-code output-title-icon"></i>
+                <span>Compiled JavaScript</span>
+              </div>
+              <pre id="jsOutput" class="output-content"></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="status-bar">
+        <div class="status-item">
+          <i class="fas fa-circle" style="color: var(--success-color); font-size: 8px;"></i>
+          <span>Jam 2.0</span>
+        </div>
+        <div class="status-item">
+          <i class="fas fa-lightbulb"></i>
+          <span>Press Ctrl+Space for autocomplete</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Welcome Modal (hidden by default) -->
+    <div id="welcome-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; overflow: auto; padding: 20px;">
+      <div style="background: var(--panel-bg); border-radius: 8px; margin: 40px auto; max-width: 800px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        <div style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+          <h2 style="margin: 0; color: var(--primary-color);"><i class="fas fa-star"></i> Welcome to Jam IDE</h2>
+          <button onclick="hideWelcome()" style="background: none; border: none; color: var(--text-color); font-size: 20px; cursor: pointer;">&times;</button>
+        </div>
+        <div style="padding: 20px;">
+          <div class="welcome-message">
+            <h3 class="welcome-title">A beginner-friendly programming environment</h3>
+            <p>Jam IDE is designed to make programming accessible and fun. Write code in the Jam language and see it instantly compiled to JavaScript.</p>
+            
+            <div class="welcome-features">
+              <div class="feature-item">
+                <i class="fas fa-bolt feature-icon"></i>
+                <div>
+                  <strong>Quick Start:</strong> Try writing <code>print "Hello, World!"</code> and click Run to see it in action.
+                </div>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-magic feature-icon"></i>
+                <div>
+                  <strong>Smart Autocomplete:</strong> Press Ctrl+Space to see available Jam commands as you type.
+                </div>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-exchange-alt feature-icon"></i>
+                <div>
+                  <strong>See the JavaScript:</strong> Click "Compile to JS" to see how your Jam code translates to JavaScript.
+                </div>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-book feature-icon"></i>
+                <div>
+                  <strong>Learn as you go:</strong> The error messages will help you understand and fix issues in your code.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="padding: 15px 20px; background: var(--accent-color); border-radius: 0 0 8px 8px; text-align: right;">
+          <button class="primary-btn" onclick="hideWelcome()">
+            <i class="fas fa-thumbs-up"></i> Get Started
+          </button>
+        </div>
       </div>
     </div>
 
+    <!-- Monaco Editor Loader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.40.0/min/vs/loader.min.js"></script>
     <script>
-      const editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        lineNumbers: true,
-        mode: "javascript",
-        theme: "dracula",
-        extraKeys: { "Ctrl-Space": "autocomplete" },
-      });
-
-      const JAM_KEYWORDS = [
-        "let",
-        "print",
-        "say",
-        "ask",
-        "add",
-        "multiply",
-        "length of",
-        "uppercase",
-        "lowercase",
-        "reverse",
-        "square of",
-        "sqrt of",
-        "random between",
-        "wait",
-        "choose from",
-        "function",
-        "call",
-        "repeat",
-        "if",
-        "timer start",
-        "timer stop",
-      ];
-
-      CodeMirror.registerHelper("hint", "jam", function (editor) {
-        const cur = editor.getCursor();
-        const token = editor.getTokenAt(cur);
-        const start = token.start;
-        const end = cur.ch;
-        const line = cur.line;
-        const currentWord = token.string.slice(0, end - start);
-        const list = JAM_KEYWORDS.filter((k) => k.startsWith(currentWord));
-        return {
-          list: list.length ? list : JAM_KEYWORDS,
-          from: CodeMirror.Pos(line, start),
-          to: CodeMirror.Pos(line, end),
-        };
-      });
-
-      editor.on("inputRead", function onInputRead(cm, change) {
-        if (change.text[0] && /[a-zA-Z]/.test(change.text[0])) {
-          cm.showHint({ hint: CodeMirror.hint.jam });
+      // Configure Monaco
+      require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.40.0/min/vs' }});
+      
+      let editor;
+      let welcomeShown = false;
+      
+      // Initialize Monaco Editor
+      require(['vs/editor/editor.main'], function() {
+        editor = monaco.editor.create(document.getElementById('monaco-editor'), {
+          value: `# Welcome to Jam IDE!\n# Try writing some Jam code here\n\nprint "Hello, World!"\n\n# Click Run to execute your code\n# Or click Compile to JS to see the JavaScript equivalent`,
+          language: 'javascript',
+          theme: 'vs-dark',
+          automaticLayout: true,
+          fontSize: 14,
+          lineNumbers: 'on',
+          roundedSelection: true,
+          scrollBeyondLastLine: false,
+          readOnly: false,
+          minimap: { enabled: true },
+          suggestOnTriggerCharacters: true,
+          wordBasedSuggestions: true,
+          quickSuggestions: { other: true, comments: false, strings: true },
+          renderWhitespace: 'none',
+          renderControlCharacters: false,
+          fontLigatures: false,
+          autoIndent: 'full',
+          formatOnPaste: true,
+          formatOnType: true,
+          scrollbar: {
+            verticalScrollbarSize: 8,
+            horizontalScrollbarSize: 8,
+            useShadows: false
+          }
+        });
+        
+        // Add Jam language support
+        monaco.languages.register({ id: 'jam' });
+        
+        monaco.languages.setMonarchTokensProvider('jam', {
+          defaultToken: '',
+          tokenPostfix: '.jam',
+          
+          keywords: [
+            'let', 'print', 'say', 'ask', 'add', 'multiply', 'length of',
+            'uppercase', 'lowercase', 'reverse', 'square of', 'sqrt of',
+            'random between', 'wait', 'choose from', 'function', 'call',
+            'repeat', 'if', 'timer start', 'timer stop'
+          ],
+          
+          typeKeywords: [],
+          
+          operators: [
+            '=', '>', '<', '!', '~', '?', ':', '==', '<=', '>=', '!=',
+            '&&', '||', '++', '--', '+', '-', '*', '/', '&', '|', '^', '%',
+            '<<', '>>', '>>>', '+=', '-=', '*=', '/=', '&=', '|=', '^=',
+            '%=', '<<=', '>>=', '>>>='
+          ],
+          
+          symbols: /[=><!~?:&|+\-*\/\^%]+/,
+          
+          escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+          
+          tokenizer: {
+            root: [
+              [/#.*$/, 'comment'],  // This handles # comments at start of lines
+              [/[a-zA-Z_]\w*/, {
+                cases: {
+                  '@keywords': 'keyword',
+                  '@default': 'identifier'
+                }
+              }],
+              
+              { include: '@whitespace' },
+              
+              [/[{}()\[\]]/, '@brackets'],
+              [/[<>](?!@symbols)/, '@brackets'],
+              [/@symbols/, {
+                cases: {
+                  '@operators': 'operator',
+                  '@default': ''
+                }
+              }],
+              
+              [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
+              [/0[xX][0-9a-fA-F]+/, 'number.hex'],
+              [/\d+/, 'number'],
+              
+              [/[;,.]/, 'delimiter'],
+              
+              [/"([^"\\]|\\.)*$/, 'string.invalid'],
+              [/'([^'\\]|\\.)*$/, 'string.invalid'],
+              [/"/, 'string', '@string_double'],
+              [/'/, 'string', '@string_single']
+            ],
+            
+            whitespace: [
+              [/[ \t\r\n]+/, 'white'],
+              [/#.*$/, 'comment']  // This handles # comments after whitespace
+            ],
+            
+            string_double: [
+              [/[^\\"]+/, 'string'],
+              [/@escapes/, 'string.escape'],
+              [/\\./, 'string.escape.invalid'],
+              [/"/, 'string', '@pop']
+            ],
+            
+            string_single: [
+              [/[^\\']+/, 'string'],
+              [/@escapes/, 'string.escape'],
+              [/\\./, 'string.escape.invalid'],
+              [/'/, 'string', '@pop']
+            ]
+          }
+        });
+        
+        // Set the editor language to Jam
+        monaco.editor.setModelLanguage(editor.getModel(), 'jam');
+        
+        // Set a custom theme
+        monaco.editor.defineTheme('jam-theme', {
+          base: 'vs-dark',
+          inherit: true,
+          rules: [
+            { token: 'keyword', foreground: '#569CD6' },
+            { token: 'string', foreground: '#CE9178' },
+            { token: 'number', foreground: '#B5CEA8' },
+            { token: 'comment', foreground: '#6A9955' },
+            { token: 'identifier', foreground: '#9CDCFE' }
+          ],
+          colors: {
+            'editor.background': '#1E1E1E',
+            'editor.lineNumbers': '#858585',
+            'editor.selectionBackground': '#264F78',
+            'editorCursor.foreground': '#A6A6A6'
+          }
+        });
+        
+        monaco.editor.setTheme('jam-theme');
+        
+        // Register completion provider for Jam
+        monaco.languages.registerCompletionItemProvider('jam', {
+          provideCompletionItems: function(model, position) {
+            const JAM_KEYWORDS = [
+              { label: 'print', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Prints output to the console', 
+                insertText: 'print "${1:message}"' },
+              { label: 'say', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Prints output to the console (alias for print)', 
+                insertText: 'say "${1:message}"' },
+              { label: 'let', kind: monaco.languages.CompletionItemKind.Keyword, 
+                documentation: 'Declares a variable', 
+                insertText: 'let ${1:variable} = ${2:value}' },
+              { label: 'ask', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Asks for user input', 
+                insertText: 'ask "${1:question}" and store in ${2:variable}' },
+              { label: 'add', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Adds two numbers', 
+                insertText: 'add ${1:a} and ${2:b} into ${3:result}' },
+              { label: 'multiply', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Multiplies two numbers', 
+                insertText: 'multiply ${1:a} and ${2:b} into ${3:result}' },
+              { label: 'function', kind: monaco.languages.CompletionItemKind.Keyword, 
+                documentation: 'Declares a function', 
+                insertText: 'function ${1:name}(${2:params}) {\n\t${3}\n}' },
+              { label: 'if', kind: monaco.languages.CompletionItemKind.Keyword, 
+                documentation: 'Conditional statement', 
+                insertText: 'if ${1:condition} {\n\t${2}\n}' },
+              { label: 'repeat', kind: monaco.languages.CompletionItemKind.Keyword, 
+                documentation: 'Repeats code a number of times', 
+                insertText: 'repeat ${1:count} {\n\t${2}\n}' },
+              { label: 'length of', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Gets the length of a string or array', 
+                insertText: 'length of ${1:input} into ${2:result}' }
+            ];
+            
+            const word = model.getWordUntilPosition(position);
+            const range = {
+              startLineNumber: position.lineNumber,
+              endLineNumber: position.lineNumber,
+              startColumn: word.startColumn,
+              endColumn: word.endColumn
+            };
+            
+            return {
+              suggestions: JAM_KEYWORDS.map(keyword => ({
+                label: keyword.label,
+                kind: keyword.kind,
+                documentation: keyword.documentation,
+                insertText: keyword.insertText,
+                range: range
+              }))
+            };
+          }
+        });
+        
+        // Show welcome message on first load
+        if (!localStorage.getItem('jamIDE_welcomeShown')) {
+          setTimeout(showWelcome, 500);
+          localStorage.setItem('jamIDE_welcomeShown', 'true');
         }
       });
-
+      
+      // Core functionality (same as original, just adapted for Monaco)
       async function runCode() {
         const code = editor.getValue();
-        document.getElementById("output").innerText = "";
+        document.getElementById("output").innerText = "Running...";
         document.getElementById("error").innerText = "";
         try {
-          const res = await fetch("https://jam-hi9d.onrender.com/run", {
+          const res = await fetch("http://localhost:5501/run", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ code }),
           });
           const data = await res.json();
-          document.getElementById("output").innerText = data.output || "";
+          document.getElementById("output").innerText = data.output || "(No output)";
           document.getElementById("error").innerText = data.error || "";
         } catch (err) {
           document.getElementById("error").innerText = "Error: " + err.message;
@@ -198,6 +622,7 @@
       function clearOutput() {
         document.getElementById("output").innerText = "";
         document.getElementById("error").innerText = "";
+        document.getElementById("jsOutput").innerText = "";
       }
 
       function saveCode() {
@@ -394,6 +819,15 @@
 
         // Default (assume it's a raw JS-like statement)
         return line.endsWith("{") ? line : line + ";";
+      }
+      
+      // Welcome modal functions
+      function showWelcome() {
+        document.getElementById('welcome-modal').style.display = 'block';
+      }
+      
+      function hideWelcome() {
+        document.getElementById('welcome-modal').style.display = 'none';
       }
     </script>
   </body>
