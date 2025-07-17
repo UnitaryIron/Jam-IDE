@@ -535,10 +535,10 @@
           }
         });
         
-        monaco.editor.setTheme('jam-theme');
-        
-        // Register completion provider for Jam language
-      monaco.languages.registerCompletionItemProvider('jam', {
+monaco.editor.setTheme('jam-theme');
+
+// Register completion provider for Jam language
+monaco.languages.registerCompletionItemProvider('jam', {
   provideCompletionItems: function(model, position) {
     const JAM_KEYWORDS = [
       {
@@ -632,30 +632,27 @@
         insertText: 'return value'
       }
     ];
-    return { suggestions: JAM_KEYWORDS };
+
+    const word = model.getWordUntilPosition(position);
+    const range = {
+      startLineNumber: position.lineNumber,
+      endLineNumber: position.lineNumber,
+      startColumn: word.startColumn,
+      endColumn: word.endColumn
+    };
+
+    return {
+      suggestions: JAM_KEYWORDS.map(keyword => ({
+        label: keyword.label,
+        kind: keyword.kind,
+        documentation: keyword.documentation,
+        insertText: keyword.insertText,
+        range: range
+      }))
+    };
   }
 });
 
-
-            const word = model.getWordUntilPosition(position);
-            const range = {
-              startLineNumber: position.lineNumber,
-              endLineNumber: position.lineNumber,
-              startColumn: word.startColumn,
-              endColumn: word.endColumn
-            };
-            
-            return {
-              suggestions: JAM_KEYWORDS.map(keyword => ({
-                label: keyword.label,
-                kind: keyword.kind,
-                documentation: keyword.documentation,
-                insertText: keyword.insertText,
-                range: range
-              }))
-            };
-          }
-        });
         
         // Show welcome message on first load
         if (!localStorage.getItem('jamIDE_welcomeShown')) {
