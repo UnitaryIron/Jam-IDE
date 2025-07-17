@@ -537,75 +537,71 @@
         
         monaco.editor.setTheme('jam-theme');
         
+        // Register completion provider for Jam language
         monaco.languages.registerCompletionItemProvider('jam', {
-  provideCompletionItems: function(model, position) {
-    const JAM_KEYWORDS = [
-      { label: 'print', kind: monaco.languages.CompletionItemKind.Function, 
-        documentation: 'Prints output to the console', 
-        insertText: 'print "${1:Insert what you want to print here!}"' },
+          provideCompletionItems: function(model, position) {
+            const JAM_KEYWORDS = [
+              { label: 'print', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Prints output to the console', 
+                insertText: 'print "${1:Insert what you want to print here!}"' },
 
-      { label: 'say', kind: monaco.languages.CompletionItemKind.Function, 
-        documentation: 'Prints output to the console (alias for print)', 
-        insertText: 'say "${1:Insert what you want to say here!}"' },
+              { label: 'say', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Prints output to the console (alias for print)', 
+                insertText: 'say "${1:Insert what you want to say here!}"' },
 
-      { label: 'let', kind: monaco.languages.CompletionItemKind.Keyword, 
-        documentation: 'Declares a variable', 
-        insertText: 'let ${1:variableName} = ${2:value}' },
+              { label: 'let', kind: monaco.languages.CompletionItemKind.Keyword, 
+                documentation: 'Declares a variable', 
+                insertText: 'let ${1:variableName} = ${2:value}' },
 
-      { label: 'ask', kind: monaco.languages.CompletionItemKind.Function, 
-        documentation: 'Asks for user input and stores it', 
-        insertText: 'ask "${1:question}" and store in ${2:variableName}' },
+              { label: 'ask', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Asks for user input and stores it', 
+                insertText: 'ask "${1:question}" and store in ${2:variableName}' },
 
-      { label: 'add', kind: monaco.languages.CompletionItemKind.Function, 
-        documentation: 'Adds two numbers', 
-        insertText: 'add ${1:number1} and ${2:number2} into ${3:result}' },
+              { label: 'add', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Adds two numbers', 
+                insertText: 'add ${1:number1} and ${2:number2} into ${3:result}' },
 
-      { label: 'multiply', kind: monaco.languages.CompletionItemKind.Function, 
-        documentation: 'Multiplies two numbers', 
-        insertText: 'multiply ${1:number1} and ${2:number2} into ${3:result}' },
+              { label: 'multiply', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Multiplies two numbers', 
+                insertText: 'multiply ${1:number1} and ${2:number2} into ${3:result}' },
 
-      { label: 'function', kind: monaco.languages.CompletionItemKind.Keyword, 
-        documentation: 'Declares a function', 
-        insertText: 'function ${1:functionName}(${2:params}) {\n\t${3:// code here}\n}' },
+              { label: 'function', kind: monaco.languages.CompletionItemKind.Keyword, 
+                documentation: 'Declares a function', 
+                insertText: 'function ${1:functionName}(${2:params}) {\n\t${3:// code here}\n}' },
 
-      { label: 'if', kind: monaco.languages.CompletionItemKind.Keyword, 
-        documentation: 'Conditional statement', 
-        insertText: 'if ${1:condition} {\n\t${2:// code here}\n}' },
+              { label: 'if', kind: monaco.languages.CompletionItemKind.Keyword, 
+                documentation: 'Conditional statement', 
+                insertText: 'if ${1:condition} {\n\t${2:// code here}\n}' },
 
-      { label: 'repeat', kind: monaco.languages.CompletionItemKind.Keyword, 
-        documentation: 'Repeats code a number of times', 
-        insertText: 'repeat ${1:count} {\n\t${2:// code here}\n}' },
+              { label: 'repeat', kind: monaco.languages.CompletionItemKind.Keyword, 
+                documentation: 'Repeats code a number of times', 
+                insertText: 'repeat ${1:count} {\n\t${2:// code here}\n}' },
 
-      { label: 'length of', kind: monaco.languages.CompletionItemKind.Function, 
-        documentation: 'Gets the length of a string or array', 
-        insertText: 'length of ${1:input} into ${2:result}' },
+              { label: 'length of', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Gets the length of a string or array', 
+                insertText: 'length of ${1:input} into ${2:result}' },
 
-      { label: 'map', kind: monaco.languages.CompletionItemKind.Function, 
-        documentation: 'Applies a function to each element of a list', 
-        insertText: 'map ${1:list} with ${2:function} into ${3:result}' },
+              { label: 'map', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Applies a function to each element of a list', 
+                insertText: 'map ${1:list} with ${2:function} into ${3:result}' },
 
-      { label: 'random number', kind: monaco.languages.CompletionItemKind.Function, 
-        documentation: 'Generates a random number within a range', 
-        insertText: 'random number between ${1:min} and ${2:max} into ${3:result}' },
+              { label: 'random number', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Generates a random number within a range', 
+                insertText: 'random number between ${1:min} and ${2:max} into ${3:result}' },
 
-      { label: 'wait', kind: monaco.languages.CompletionItemKind.Function, 
-        documentation: 'Pauses execution for specified seconds', 
-        insertText: 'wait ${1:seconds}' },
+              { label: 'wait', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Pauses execution for specified seconds', 
+                insertText: 'wait ${1:seconds}' },
 
-      { label: 'now', kind: monaco.languages.CompletionItemKind.Function, 
-        documentation: 'Gets the current date and time', 
-        insertText: 'now into ${1:result}' },
+              { label: 'now', kind: monaco.languages.CompletionItemKind.Function, 
+                documentation: 'Gets the current date and time', 
+                insertText: 'now into ${1:result}' },
 
-      { label: 'return', kind: monaco.languages.CompletionItemKind.Keyword, 
-        documentation: 'Returns a value from a function', 
-        insertText: 'return ${1:value}' }
-    ];
+              { label: 'return', kind: monaco.languages.CompletionItemKind.Keyword, 
+                documentation: 'Returns a value from a function', 
+                insertText: 'return ${1:value}' }
+            ];
 
-    return { suggestions: JAM_KEYWORDS };
-  }
-});
-
-            
             const word = model.getWordUntilPosition(position);
             const range = {
               startLineNumber: position.lineNumber,
@@ -623,7 +619,7 @@
                 range: range
               }))
             };
-          })
+          }
         });
         
         // Show welcome message on first load
