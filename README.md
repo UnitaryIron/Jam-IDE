@@ -1,3 +1,4 @@
+  ![Repo Logo](Jam-logo-modified.png)
 # Jam IDE
 
 A simple **web-based IDE** for the Jam programming language.  
