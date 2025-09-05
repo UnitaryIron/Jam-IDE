@@ -345,8 +345,7 @@
         </div>
       </div>
     </div>
-    
-    <!-- Welcome Modal (hidden by default) -->
+      
     <div id="welcome-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; overflow: auto; padding: 20px;">
       <div style="background: var(--panel-bg); border-radius: 8px; margin: 40px auto; max-width: 800px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
         <div style="padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
@@ -393,17 +392,14 @@
         </div>
       </div>
     </div>
-
-    <!-- Monaco Editor Loader -->
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.40.0/min/vs/loader.min.js"></script>
     <script>
-      // Configure Monaco
       require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.40.0/min/vs' }});
       
       let editor;
       let welcomeShown = false;
       
-      // Initialize Monaco Editor
       require(['vs/editor/editor.main'], function() {
         editor = monaco.editor.create(document.getElementById('monaco-editor'), {
           value: `# Welcome to Jam IDE!\n# Try writing some Jam code here\n\nprint "Hello, World!"\n\n# Click Run to execute your code\n# Or click Compile to JS to see the JavaScript equivalent`,
@@ -431,8 +427,7 @@
             useShadows: false
           }
         });
-        
-        // Add Jam language support
+      
         monaco.languages.register({ id: 'jam' });
         
         monaco.languages.setMonarchTokensProvider('jam', {
@@ -461,7 +456,7 @@
           
           tokenizer: {
             root: [
-              [/#.*$/, 'comment'],  // This handles # comments at start of lines
+              [/#.*$/, 'comment'],
               [/[a-zA-Z_]\w*/, {
                 cases: {
                   '@keywords': 'keyword',
@@ -494,7 +489,7 @@
             
             whitespace: [
               [/[ \t\r\n]+/, 'white'],
-              [/#.*$/, 'comment']  // This handles # comments after whitespace
+              [/#.*$/, 'comment']
             ],
             
             string_double: [
@@ -513,10 +508,7 @@
           }
         });
         
-        // Set the editor language to Jam
         monaco.editor.setModelLanguage(editor.getModel(), 'jam');
-        
-        // Set a custom theme
         monaco.editor.defineTheme('jam-theme', {
           base: 'vs-dark',
           inherit: true,
@@ -536,8 +528,6 @@
         });
         
 monaco.editor.setTheme('jam-theme');
-
-// Register completion provider for Jam language
 monaco.languages.registerCompletionItemProvider('jam', {
   provideCompletionItems: function(model, position) {
     const JAM_KEYWORDS = [
@@ -653,25 +643,22 @@ monaco.languages.registerCompletionItemProvider('jam', {
   }
 });
 
-        
-        // Show welcome message on first load
         if (!localStorage.getItem('jamIDE_welcomeShown')) {
           setTimeout(showWelcome, 500);
           localStorage.setItem('jamIDE_welcomeShown', 'true');
         }
       });
       
-      // Core functionality (same as original, just adapted for Monaco)
       async function runCode() {
         const code = editor.getValue();
         document.getElementById("output").innerText = "Running...";
         document.getElementById("error").innerText = "";
-        try {
-          const res = await fetch("http://localhost:5501/run", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ code }),
-          });
+        const res = await fetch("https://jam-hi9d.onrender.com", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ code }),
+});
+
           const data = await res.json();
           document.getElementById("output").innerText = data.output || "(No output)";
           document.getElementById("error").innerText = data.error || "";
@@ -711,7 +698,7 @@ monaco.languages.registerCompletionItemProvider('jam', {
         try {
           const execute = new Function(jsCode);
           execute();
-          document.getElementById("error").textContent = ""; // Clear errors if successful
+          document.getElementById("error").textContent = "";
         } catch (err) {
           document.getElementById("error").innerText = err.message;
         }
@@ -739,7 +726,6 @@ monaco.languages.registerCompletionItemProvider('jam', {
       }
 
       function convertLine(line) {
-        // Change DOM
         if (line.startsWith("change ")) {
           const match = line.match(/change (\S+?)\.(\S+?) to (.+)/);
           if (match) {
@@ -748,7 +734,6 @@ monaco.languages.registerCompletionItemProvider('jam', {
           }
         }
 
-        // Event handling
         if (line.startsWith("on ")) {
           const match = line.match(/on (\S+?) (\S+?) \{/);
           if (match) {
@@ -756,31 +741,26 @@ monaco.languages.registerCompletionItemProvider('jam', {
             return `jam.dom.on("${target}", "${event}", () => {`;
           }
         }
-
-        // Print
+        
         if (line.startsWith("print ")) {
           let content = line.slice(6).trim();
           if (!/^["'].*["']$/.test(content)) content = `"${content}"`;
           return `console.log(${content});`;
         }
 
-        // Variable declaration
         if (line.startsWith("let ") && !line.includes("=[")) {
           return line.replace("let ", "const ") + ";";
         }
 
-        // Arrays
         if (line.startsWith("let ") && line.includes("=[")) {
           return line.replace("let ", "const ") + ";";
         }
 
-        // Conditionals
         if (line.startsWith("if ")) {
           const condition = line.match(/if (.+?) \{/)?.[1];
           return condition ? `if (${condition}) {` : null;
         }
 
-        // Loops
         if (line.startsWith("repeat ")) {
           const match = line.match(/repeat (\d+) \{/);
           if (match) {
@@ -789,7 +769,6 @@ monaco.languages.registerCompletionItemProvider('jam', {
           }
         }
 
-        // Function declaration
         if (line.startsWith("function ")) {
           const match = line.match(/function (\w+)(?: (.+))? \{/);
           if (match) {
@@ -798,7 +777,6 @@ monaco.languages.registerCompletionItemProvider('jam', {
           }
         }
 
-        // Add
         if (line.startsWith("add ")) {
           const match = line.match(/add (.+?) and (.+?) into (\w+)/);
           if (match) {
@@ -878,11 +856,9 @@ monaco.languages.registerCompletionItemProvider('jam', {
           }
         }
 
-        // Default (assume it's a raw JS-like statement)
         return line.endsWith("{") ? line : line + ";";
       }
       
-      // Welcome modal functions
       function showWelcome() {
         document.getElementById('welcome-modal').style.display = 'block';
       }
@@ -893,3 +869,4 @@ monaco.languages.registerCompletionItemProvider('jam', {
     </script>
   </body>
 </html>
+
