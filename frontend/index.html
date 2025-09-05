@@ -94,9 +94,11 @@
       }
       
       #monaco-editor {
-        width: 100%;
-        height: 100%;
-      }
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+}
+
       
       .controls {
         padding: 12px 16px;
@@ -650,23 +652,23 @@ monaco.languages.registerCompletionItemProvider('jam', {
       });
       
       async function runCode() {
-        const code = editor.getValue();
-        document.getElementById("output").innerText = "Running...";
-        document.getElementById("error").innerText = "";
-        const res = await fetch("https://jam-hi9d.onrender.com", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ code }),
-});
+  const code = editor.getValue();
+  document.getElementById("output").innerText = "Running...";
+  document.getElementById("error").innerText = "";
+  try {
+    const res = await fetch("https://jam-hi9d.onrender.com/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code }),
+    });
 
-          const data = await res.json();
-          document.getElementById("output").innerText = data.output || "(No output)";
-          document.getElementById("error").innerText = data.error || "";
-        } catch (err) {
-          document.getElementById("error").innerText = "Error: " + err.message;
-        }
-      }
-
+    const data = await res.json();
+    document.getElementById("output").innerText = data.output || "(No output)";
+    document.getElementById("error").innerText = data.error || "";
+  } catch (err) {
+    document.getElementById("error").innerText = "Error: " + err.message;
+  }
+}
       function clearOutput() {
         document.getElementById("output").innerText = "";
         document.getElementById("error").innerText = "";
@@ -869,4 +871,5 @@ monaco.languages.registerCompletionItemProvider('jam', {
     </script>
   </body>
 </html>
+
 
